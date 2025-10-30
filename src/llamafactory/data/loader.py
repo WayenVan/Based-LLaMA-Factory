@@ -23,6 +23,7 @@ from ..extras.constants import FILEEXT2TYPE
 from ..extras.misc import check_version, has_tokenized_data
 from .converter import align_dataset
 from .data_utils import get_dataset_module, merge_dataset, read_cloud_json, split_dataset
+from .data_mappings import apply_data_mapping
 from .parser import get_dataset_list
 from .processor import (
     FeedbackDatasetProcessor,
@@ -49,6 +50,7 @@ logger = logging.get_logger(__name__)
 
 
 def _load_single_dataset(
+    dataset_name: str,
     dataset_attr: "DatasetAttr",
     model_args: "ModelArguments",
     data_args: "DataArguments",
@@ -159,6 +161,9 @@ def _load_single_dataset(
         max_samples = min(data_args.max_samples, len(dataset))
         dataset = dataset.select(range(max_samples))
 
+    # NOTE: apply data mapping if exists
+    dataset = apply_data_mapping(dataset_name, dataset, dataset_attr, data_args, training_args)
+
     return align_dataset(dataset, dataset_attr, data_args, training_args)
 
 
@@ -179,7 +184,7 @@ def _get_merged_dataset(
         if (stage == "rm" and dataset_attr.ranking is False) or (stage != "rm" and dataset_attr.ranking is True):
             raise ValueError("The dataset is not applicable in the current training stage.")
 
-        datasets[dataset_name] = _load_single_dataset(dataset_attr, model_args, data_args, training_args)
+        datasets[dataset_name] = _load_single_dataset(dataset_name, dataset_attr, model_args, data_args, training_args)
 
     if return_dict:
         return datasets
