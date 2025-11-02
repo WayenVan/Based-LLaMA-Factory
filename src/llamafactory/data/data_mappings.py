@@ -47,3 +47,11 @@ def apply_data_mapping(
             **kwargs,
         )
     return dataset
+
+
+register_data_mapping(
+    "east_aftrica_pt",
+    lambda example: {
+        "text": f"Translate {example['source_language']} to {example['translated_language']}:\n input: {example['source']}\noutput: {example['translation']}"
+    },
+)

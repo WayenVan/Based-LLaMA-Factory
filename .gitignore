@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# unsloth
+unsloth_compiled_cache/
+
 # C extensions
 *.so
 
@@ -160,7 +163,7 @@ cython_debug/
 .idea/
 
 # vscode
-.vscode/
+# .vscode/
 
 # uv
 uv.lock
