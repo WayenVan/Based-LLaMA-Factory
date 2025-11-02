@@ -48,8 +48,7 @@
         "auto_output_root=./outputs/debug",
         "bf16=False",
         "use_unsloth=True",
-        "max_samples=64",
-        "cutoff_len=128"
+        "max_samples=1024000"
       ],
       "console": "integratedTerminal",
       "env": {

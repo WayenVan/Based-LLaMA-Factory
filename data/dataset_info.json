@@ -1,5 +1,11 @@
 {
-  "east_aftrica_pt": {
+  "east_aftrica_pt_source": {
+    "hf_hub_url": "sartifyllc/east_africa_language",
+    "columns": {
+      "prompt": "text"
+    }
+  },
+  "east_aftrica_pt_translated": {
     "hf_hub_url": "sartifyllc/east_africa_language",
     "columns": {
       "prompt": "text"

@@ -97,7 +97,8 @@ class AutoOutputTrainingArguments:
                 raise ValueError("auto_output_root must be specified when auto_output_dir is True.")
 
             base_name = self.__init_output_base_name()
-            base_name = self.__snyc_output_base_name(acc, base_name)
+            if acc.num_processes > 1:
+                base_name = self.__snyc_output_base_name(acc, base_name)
 
             output_dir = os.path.join(self.auto_output_root, base_name)
 
