@@ -23,8 +23,10 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import torch
 import transformers
+from accelerate import Accelerator
 from peft import PeftModel
 from transformers import PreTrainedModel, ProcessorMixin, TrainerCallback
+from transformers.modeling_utils import unwrap_model
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR, has_length
 from transformers.utils import SAFE_WEIGHTS_NAME, WEIGHTS_NAME
 from typing_extensions import override
@@ -380,3 +382,32 @@ class ReporterCallback(TrainerCallback):
                     "generating_args": self.generating_args.to_dict(),
                 }
             )
+
+
+class ShowTrainableParamsCallback(TrainerCallback):
+    r"""A callback for showing trainable parameters at the beginning of training."""
+
+    def __init__(self) -> None:
+        self.acc = Accelerator()
+
+    @override
+    def on_train_begin(self, args: "TrainingArguments", state: "TrainerState", control: "TrainerControl", **kwargs):
+        model = kwargs.pop("model")
+        model = self.acc.unwrap_model(model)
+
+        if not state.is_world_process_zero:
+            return
+
+        total_params = 0
+        trainable_params = 0
+        for name, param in model.named_parameters():
+            params = param.numel()
+            total_params += params
+            if param.requires_grad:
+                trainable_params += params
+                logger.info_rank0(f"Trainable parameter: {name} with {params} params.")
+
+        logger.info_rank0(
+            f"Total trainable parameters: {trainable_params} / {total_params} "
+            f"({trainable_params / total_params * 100:.2f}%)"
+        )

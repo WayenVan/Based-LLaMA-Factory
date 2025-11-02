@@ -46,7 +46,7 @@ else:
 @dataclass
 class AutoOutputTrainingArguments:
     auto_output_dir: bool = field(
-        default=True,
+        default=False,
         metadata={
             "help": "Whether to automatically set the output directory based on the model name."
             " If set to False, the output directory will be set to the value of `output_dir`."

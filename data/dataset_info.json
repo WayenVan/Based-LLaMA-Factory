@@ -1,4 +1,10 @@
 {
+  "east_aftrica_pt": {
+    "hf_hub_url": "sartifyllc/east_africa_language",
+    "columns": {
+      "prompt": "text"
+    }
+  },
   "identity": {
     "file_name": "identity.json"
   },
