@@ -35,6 +35,7 @@
       "module": "accelerate.commands.launch",
       "args": [
         "--config_file",
+        1,
         "experiments/configs/acc_config.yaml",
         "--main_process_port",
         "29502",
@@ -46,9 +47,7 @@
         "experiments/configs/llamafactory_args.yaml",
         "auto_output_dir=True",
         "auto_output_root=./outputs/debug",
-        "bf16=False",
-        "use_unsloth=True",
-        "max_samples=1024000"
+        "max_samples=2000"
       ],
       "console": "integratedTerminal",
       "env": {

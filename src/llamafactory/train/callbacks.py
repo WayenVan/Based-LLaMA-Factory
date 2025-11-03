@@ -392,11 +392,11 @@ class ShowTrainableParamsCallback(TrainerCallback):
 
     @override
     def on_train_begin(self, args: "TrainingArguments", state: "TrainerState", control: "TrainerControl", **kwargs):
-        model = kwargs.pop("model")
-        model = self.acc.unwrap_model(model)
-
         if not state.is_world_process_zero:
             return
+
+        model = kwargs.pop("model")
+        model = self.acc.unwrap_model(model)
 
         total_params = 0
         trainable_params = 0
@@ -405,7 +405,7 @@ class ShowTrainableParamsCallback(TrainerCallback):
             total_params += params
             if param.requires_grad:
                 trainable_params += params
-                logger.info_rank0(f"Trainable parameter: {name} with {params} params.")
+                print(f"Trainable parameter: {name} with {params} params.")
 
         logger.info_rank0(
             f"Total trainable parameters: {trainable_params} / {total_params} "
