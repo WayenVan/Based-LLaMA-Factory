@@ -13,7 +13,7 @@ dataset: east_africa_sft
 template: gemma2
 cutoff_len: 1024
 # max_samples: 1000
-overwrite_cache: true
+overwrite_cache: false
 preprocessing_num_workers: 64
 dataloader_num_workers: 32
 
@@ -29,8 +29,6 @@ report_to: wandb # choices: [none, wandb, tensorboard, swanlab, mlflow]
 auto_output_dir: true
 auto_output_root: outputs/gemma-1b-sft
 
-post_train_tasks: ["afrimmt_metrics_swap"]
-
 ### train
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 2
@@ -41,9 +39,11 @@ warmup_ratio: 0.1
 bf16: true
 ddp_timeout: 180000000
 resume_from_checkpoint: null
+
 ### eval
 # eval_dataset: alpaca_en_demo
 # val_size: 0.1
-# per_device_eval_batch_size: 1
+per_device_eval_batch_size: 32
+post_train_tasks: ["afrimmt_metrics_swap"]
 # eval_strategy: steps
 # eval_steps: 500

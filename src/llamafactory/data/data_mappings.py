@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Callable, Union
 
+from ..extras.east_africa_language_utils import EastAfricaLanguageProcessor
+
 
 if TYPE_CHECKING:
     from datasets import Dataset, IterableDataset
@@ -49,37 +51,11 @@ def apply_data_mapping(
     return dataset
 
 
-register_data_mapping(
-    "east_aftrica_pt_source",
-    lambda example: {
-        # "text": f"Translate {example['source_language']} to {example['translated_language']}:\n input: {example['source']}\noutput: {example['translation']}"
-        "text": f"{example['source']}",
-    },
-)
+register_data_mapping("east_aftrica_pt_source", EastAfricaLanguageProcessor(mode="pt_source_to_translated"))
 
 register_data_mapping(
     "east_aftrica_pt_translated",
-    lambda example: {
-        "text": f"{example['translation']}",
-    },
+    EastAfricaLanguageProcessor(mode="pt_translated_to_source"),
 )
 
-
-def east_aftrica_sft(example):
-    conversations = [
-        {
-            "from": "human",
-            "value": f"Translate {example['source_language']} to {example['translated_language']}:\n input: {example['source']}\noutput: ",
-        },
-        {
-            "from": "gpt",
-            "value": f"{example['translation']}",
-        },
-    ]
-    return {"conversations": conversations}
-
-
-register_data_mapping(
-    "east_africa_sft",
-    east_aftrica_sft,
-)
+register_data_mapping("east_africa_sft", EastAfricaLanguageProcessor(mode="sft_training"))
