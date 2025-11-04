@@ -44,6 +44,14 @@ else:
 
 
 @dataclass
+class PostTrainTasksArguments:
+    post_train_tasks: Optional[list[str]] = field(
+        default=None,
+        metadata={"help": "A list of post-training tasks to perform after training. "},
+    )
+
+
+@dataclass
 class AutoOutputTrainingArguments:
     auto_output_dir: bool = field(
         default=False,
@@ -179,7 +187,7 @@ class RayArguments:
 
 
 @dataclass
-class TrainingArguments(RayArguments, BaseTrainingArguments, AutoOutputTrainingArguments):
+class TrainingArguments(RayArguments, BaseTrainingArguments, AutoOutputTrainingArguments, PostTrainTasksArguments):
     r"""Arguments pertaining to the trainer."""
 
     overwrite_output_dir: bool = field(

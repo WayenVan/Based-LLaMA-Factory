@@ -4,5 +4,5 @@ export $(cat .env.private | xargs)
 
 CUDA_VISIBLE_DEVICES=0,1 \
 	accelerate launch \
-	--config_file experiments/configs/acc_config.yaml \
-	src/train.py experiments/configs/llamafactory_args.yaml
+	--config_file experiments/configs/pt/acc_config_pt.yaml \
+	src/train.py experiments/configs/pt/llamafactory_args_pt.yaml

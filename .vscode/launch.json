@@ -35,7 +35,6 @@
       "module": "accelerate.commands.launch",
       "args": [
         "--config_file",
-        1,
         "experiments/configs/acc_config.yaml",
         "--main_process_port",
         "29502",
@@ -48,6 +47,35 @@
         "auto_output_dir=True",
         "auto_output_root=./outputs/debug",
         "max_samples=2000"
+      ],
+      "console": "integratedTerminal",
+      "env": {
+        "WANDB_PROJECT": "llamafactory-debug",
+        "CUDA_VISIBLE_DEVICES": "0",
+        "DISABLE_VERSION_CHECK": "1"
+      },
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Acc Training Debug SFT",
+      "type": "python",
+      "request": "launch",
+      "module": "accelerate.commands.launch",
+      "args": [
+        "--config_file",
+        "experiments/configs/sft/acc_config_sft.yaml",
+        "--main_process_port",
+        "29503",
+        "--num_processes",
+        "1",
+        "--num_machines",
+        "1",
+        "src/train.py",
+        "experiments/configs/sft/llamafactory_args_sft.yaml",
+        "auto_output_dir=True",
+        "auto_output_root=./outputs/debug",
+        "max_samples=2000",
+        "do_train=False"
       ],
       "console": "integratedTerminal",
       "env": {

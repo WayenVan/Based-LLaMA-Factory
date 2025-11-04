@@ -131,5 +131,24 @@ def run_sft(
         trainer.save_metrics("predict", predict_results.metrics)
         trainer.save_predictions(dataset_module["eval_dataset"], predict_results, generating_args.skip_special_tokens)
 
+    # post training tasks
+    if training_args.post_train_tasks:
+        from ..post_train_tasks import get_post_train_task
+
+        for task_name in training_args.post_train_tasks:
+            task = get_post_train_task(task_name)
+            if task is not None:
+                logger.info_rank0(f"Running post training task: {task_name}")
+                task(
+                    trainer=trainer,
+                    model_args=model_args,
+                    data_args=data_args,
+                    training_args=training_args,
+                    finetuning_args=finetuning_args,
+                    generating_args=generating_args,
+                )
+            else:
+                logger.warning_rank0(f"Post training task {task_name} not found.")
+
     # Create model card
     create_modelcard_and_push(trainer, model_args, data_args, training_args, finetuning_args)

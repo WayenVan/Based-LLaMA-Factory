@@ -63,3 +63,23 @@ register_data_mapping(
         "text": f"{example['translation']}",
     },
 )
+
+
+def east_aftrica_sft(example):
+    conversations = [
+        {
+            "from": "human",
+            "value": f"Translate {example['source_language']} to {example['translated_language']}:\n input: {example['source']}\noutput: ",
+        },
+        {
+            "from": "gpt",
+            "value": f"{example['translation']}",
+        },
+    ]
+    return {"conversations": conversations}
+
+
+register_data_mapping(
+    "east_africa_sft",
+    east_aftrica_sft,
+)
