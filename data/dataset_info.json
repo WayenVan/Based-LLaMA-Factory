@@ -6,6 +6,13 @@
       "messages": "conversations"
     }
   },
+  "east_africa_sft_reversed": {
+    "hf_hub_url": "sartifyllc/east_africa_language",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations"
+    }
+  },
   "east_aftrica_pt_source": {
     "hf_hub_url": "sartifyllc/east_africa_language",
     "columns": {

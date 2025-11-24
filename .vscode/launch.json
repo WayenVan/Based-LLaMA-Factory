@@ -35,7 +35,7 @@
       "module": "accelerate.commands.launch",
       "args": [
         "--config_file",
-        "experiments/configs/acc_config.yaml",
+        "experiments/configs/pt/acc_config_pt.yaml",
         "--main_process_port",
         "29502",
         "--num_processes",
@@ -43,10 +43,11 @@
         "--num_machines",
         "1",
         "src/train.py",
-        "experiments/configs/llamafactory_args.yaml",
+        "experiments/configs/pt/llamafactory_args_pt.yaml",
         "auto_output_dir=True",
         "auto_output_root=./outputs/debug",
-        "max_samples=2000"
+        "max_samples=2000",
+        "use_unsloth=True"
       ],
       "console": "integratedTerminal",
       "env": {

@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: google/gemma-3-1b-it
+model_name_or_path: outputs/gemma-1b-pt/2025-11-03_15-44-26/checkpoint-11805
 trust_remote_code: true
 
 ### method
@@ -9,7 +9,7 @@ finetuning_type: full
 # deepspeed: examples/deepspeed/ds_z3_config.json  # choices: [ds_z0_config.json, ds_z2_config.json, ds_z3_config.json]
 
 ### dataset
-dataset: east_africa_sft
+dataset: east_africa_sft, east_africa_sft_reversed
 template: gemma2
 cutoff_len: 1024
 # max_samples: 1000
@@ -30,10 +30,10 @@ auto_output_dir: true
 auto_output_root: outputs/gemma-1b-sft
 
 ### train
-per_device_train_batch_size: 2
+per_device_train_batch_size: 8
 gradient_accumulation_steps: 2
 learning_rate: 1.0e-5
-num_train_epochs: 3.0
+num_train_epochs: 4.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
 bf16: true

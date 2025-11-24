@@ -2,6 +2,8 @@
 model_name_or_path: google/gemma-3-1b-it
 trust_remote_code: true
 
+use_unsloth: true
+
 ### method
 stage: pt
 do_train: true
@@ -30,7 +32,7 @@ save_total_limit: 2
 report_to: wandb # choices: [none, wandb, tensorboard, swanlab, mlflow]
 
 auto_output_dir: true
-auto_output_root: outputs/gemma-1b-pt
+auto_output_root: outputs/gemma-1b-pt-unsloth
 
 ### train
 per_device_train_batch_size: 2

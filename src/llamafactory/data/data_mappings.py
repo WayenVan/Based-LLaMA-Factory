@@ -51,11 +51,12 @@ def apply_data_mapping(
     return dataset
 
 
-register_data_mapping("east_aftrica_pt_source", EastAfricaLanguageProcessor(mode="pt_source_to_translated"))
+register_data_mapping("east_aftrica_pt_source", EastAfricaLanguageProcessor(mode="pt_source"))
 
 register_data_mapping(
     "east_aftrica_pt_translated",
-    EastAfricaLanguageProcessor(mode="pt_translated_to_source"),
+    EastAfricaLanguageProcessor(mode="pt_translated"),
 )
 
 register_data_mapping("east_africa_sft", EastAfricaLanguageProcessor(mode="sft_training"))
+register_data_mapping("east_africa_sft_reversed", EastAfricaLanguageProcessor(mode="sft_training_reversed"))

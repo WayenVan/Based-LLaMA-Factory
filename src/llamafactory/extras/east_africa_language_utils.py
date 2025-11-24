@@ -72,16 +72,16 @@ AFRIMMT_LANGUAGES = bidict(
 
 @dataclass
 class EastAfricaLanguageProcessor:
-    mode: Literal["pt_source_to_translated", "pt_translated_to_source", "sft_training", "sft_eval_tokenized"]
+    mode: Literal["pt_source", "pt_translated", "sft_training", "sft_eval_tokenized", "sft_training_reversed"]
     tokenizer: Optional[PreTrainedTokenizer] = None
 
     def __post_init__(self):
         pass
 
-    def _pt_source_to_translated(self, example):
+    def _pt_source(self, example):
         return {"text": f"{example['source']}"}
 
-    def _pt_translated_to_source(self, example):
+    def _pt_translated(self, example):
         return {
             "text": f"{example['translation']}",
         }
@@ -95,6 +95,19 @@ class EastAfricaLanguageProcessor:
             {
                 "from": "gpt",
                 "value": f"{example['translation']}",
+            },
+        ]
+        return {"conversations": conversations}
+
+    def _sft_training_reversed(self, example):
+        conversations = [
+            {
+                "from": "human",
+                "value": f"Translate {example['translated_language']} to {example['source_language']}:\nInput: {example['translation']}\nOutput: ",
+            },
+            {
+                "from": "gpt",
+                "value": f"{example['source']}",
             },
         ]
         return {"conversations": conversations}
@@ -122,14 +135,18 @@ class EastAfricaLanguageProcessor:
         return tokenized_inputs
 
     def __call__(self, example):
-        if self.mode == "pt_source_to_translated":
-            return self._pt_source_to_translated(example)
-        elif self.mode == "pt_translated_to_source":
-            return self._pt_translated_to_source(example)
+        if self.mode == "pt_source":
+            return self._pt_source(example)
+        elif self.mode == "pt_translated":
+            return self._pt_translated(example)
         elif self.mode == "sft_training":
             return self._sft_training(example)
         elif self.mode == "sft_eval_tokenized":
             return self._sft_eval_tokenized(example)
+        elif self.mode == "sft_training_reversed":
+            return self._sft_training_reversed(example)
+        else:
+            raise ValueError(f"Unknown mode: {self.mode}")
 
 
 def _print_data_example(tokenizer, example: dict[str, list[int]]) -> None:

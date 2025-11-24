@@ -2,7 +2,7 @@ from datasets import load_dataset
 
 
 dataset = load_dataset("sartifyllc/east_africa_language")
-dataset = dataset["train"]
+dataset = dataset["test"]
 print(len(dataset))
 
 
