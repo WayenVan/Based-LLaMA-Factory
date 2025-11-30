@@ -72,7 +72,14 @@ AFRIMMT_LANGUAGES = bidict(
 
 @dataclass
 class EastAfricaLanguageProcessor:
-    mode: Literal["pt_source", "pt_translated", "sft_training", "sft_eval_tokenized", "sft_training_reversed"]
+    mode: Literal[
+        "pt_source",
+        "pt_translated",
+        "sft_training",
+        "sft_eval_tokenized",
+        "sft_training_reversed",
+        "sft_eval_tokenized_reversed",
+    ]
     tokenizer: Optional[PreTrainedTokenizer] = None
 
     def __post_init__(self):
@@ -134,6 +141,27 @@ class EastAfricaLanguageProcessor:
         tokenized_inputs["labels"] = self.tokenizer(example["translation"]).input_ids
         return tokenized_inputs
 
+    def _sft_eval_tokenized_reversed(self, example):
+        if self.tokenizer is None:
+            raise ValueError("Tokenizer must be provided for sft_eval_tokenized mode.")
+        messages = [
+            {
+                "role": "user",
+                "content": f"Translate {example['translated_language'].lower()} to {example['source_language'].lower()}:\nInput: {example['translation']}\nOutput: ",
+            }
+        ]
+        tokenized_inputs = self.tokenizer.apply_chat_template(
+            messages,
+            return_tensors=None,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        tokenized_inputs = self.tokenizer(tokenized_inputs)
+        tokenized_inputs["source_language"] = AFRIMMT_LANGUAGES.inv[example["translated_language"].lower().strip()]
+        tokenized_inputs["translated_language"] = AFRIMMT_LANGUAGES.inv[example["source_language"].lower().strip()]
+        tokenized_inputs["labels"] = self.tokenizer(example["source"]).input_ids
+        return tokenized_inputs
+
     def __call__(self, example):
         if self.mode == "pt_source":
             return self._pt_source(example)
@@ -145,6 +173,8 @@ class EastAfricaLanguageProcessor:
             return self._sft_eval_tokenized(example)
         elif self.mode == "sft_training_reversed":
             return self._sft_training_reversed(example)
+        elif self.mode == "sft_eval_tokenized_reversed":
+            return self._sft_eval_tokenized_reversed(example)
         else:
             raise ValueError(f"Unknown mode: {self.mode}")
 
@@ -161,31 +191,38 @@ def get_dataaset_and_fix_tokenizer_for_metrics(tokenizer, data_args, training_ar
     dataset_name = "sartifyllc/east_africa_language"
 
     dataset = datasets.load_dataset(dataset_name, split="test")
+    if select_range is not None:
+        dataset = dataset.select(select_range)
+
     tokenizer.add_bos_token = False  # no need because chat template already adds it
     tokenizer.padding_side = "left"
 
     ea_processor = EastAfricaLanguageProcessor(tokenizer=tokenizer, mode="sft_eval_tokenized")
+    ea_processor_reversed = EastAfricaLanguageProcessor(tokenizer=tokenizer, mode="sft_eval_tokenized_reversed")
 
     # get preprocessed dataset
+    #
+    output_datasets = []
+
     with training_args.main_process_first(desc="pre-process dataset", local=(not data_args.data_shared_file_system)):
-        if select_range is not None:
-            dataset = dataset.select(select_range)
+        for processor in [ea_processor, ea_processor_reversed]:
+            column_names = list(next(iter(dataset)).keys())
+            kwargs = dict(
+                num_proc=data_args.preprocessing_num_workers,
+                load_from_cache_file=(not data_args.overwrite_cache) or (training_args.local_process_index != 0),
+                desc="Converting format of dataset",
+            )
+            _dataset = dataset.map(processor, batched=False, **kwargs, remove_columns=column_names)
+            print("Data example after tokenization for metrics:")
+            _print_data_example(tokenizer, next(iter(_dataset)))
 
-        column_names = list(next(iter(dataset)).keys())
-        kwargs = dict(
-            num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=(not data_args.overwrite_cache) or (training_args.local_process_index != 0),
-            desc="Converting format of dataset",
-        )
-        dataset = dataset.map(ea_processor, batched=False, **kwargs, remove_columns=column_names)
-        print("Data example after tokenization for metrics:")
-        _print_data_example(tokenizer, next(iter(dataset)))
+            _dataset.set_format(
+                type="torch",
+                columns=["input_ids", "attention_mask", "labels", "source_language", "translated_language"],
+            )
+            output_datasets.append(_dataset)
 
-        dataset.set_format(
-            type="torch", columns=["input_ids", "attention_mask", "labels", "source_language", "translated_language"]
-        )
-
-    return dataset, tokenizer
+    return datasets.concatenate_datasets(output_datasets), tokenizer
 
 
 def monkey_patch_s2strainer_for_metrics(trainer, collator=None):
