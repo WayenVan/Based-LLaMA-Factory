@@ -1,0 +1,52 @@
+### model
+model_name_or_path: Qwen/Qwen3-0.6B
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: false
+finetuning_type: full
+# deepspeed: examples/deepspeed/ds_z3_config.json  # choices: [ds_z0_config.json, ds_z2_config.json, ds_z3_config.json]
+
+### dataset
+dataset: east_africa_sft
+template: qwen3
+cutoff_len: 1024
+# max_samples: 1000
+overwrite_cache: false
+preprocessing_num_workers: 64
+dataloader_num_workers: 32
+
+### output
+output_dir: saves/gemma-3-1b/full/sft
+logging_steps: 10
+save_steps: 500
+plot_loss: true
+overwrite_output_dir: true
+
+save_only_model: true
+save_total_limit: 2
+
+report_to: wandb # choices: [none, wandb, tensorboard, swanlab, mlflow]
+
+auto_output_dir: true
+auto_output_root: outputs/gemma-1b-sft
+
+### train
+per_device_train_batch_size: 8
+gradient_accumulation_steps: 2
+learning_rate: 1.0e-5
+num_train_epochs: 4.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+resume_from_checkpoint: null
+
+### eval
+# eval_dataset: alpaca_en_demo
+# val_size: 0.1
+per_device_eval_batch_size: 32
+post_train_tasks: ["afrimmt_metrics_swap"]
+# eval_strategy: steps
+# eval_steps: 500

@@ -58,6 +58,26 @@
       "cwd": "${workspaceFolder}"
     },
     {
+      "name": "Acc Eval Debug",
+      "type": "python",
+      "request": "launch",
+      "module": "accelerate.commands.launch",
+      "args": [
+        "--num_machines=1",
+        "--num_processes=1",
+        "--main_process_port",
+        "29502",
+        "experiments/east_afri_eval.py"
+      ],
+      "console": "integratedTerminal",
+      "env": {
+        "WANDB_PROJECT": "llamafactory-debug",
+        "CUDA_VISIBLE_DEVICES": "0",
+        "DISABLE_VERSION_CHECK": "1"
+      },
+      "cwd": "${workspaceFolder}"
+    },
+    {
       "name": "Acc Training Debug SFT",
       "type": "python",
       "request": "launch",

@@ -284,12 +284,14 @@ def swap_metrics(predictions: list[str], labels: list[str], source_langs: list[s
 
         # compute chrF
         chrf_score = charf.compute(predictions=preds, references=refs)
+        chrf_pp_score = charf.compute(predictions=preds, references=refs, word_order=2)
         metrics.append(
             {
                 "language_pair": lang_pair,
                 "n_samples": n_sampls,
                 "bleu_score": round(bleu.score, 6),
                 "chrf_score": round(chrf_score["score"], 6),
+                "chrf++_score": round(chrf_pp_score["score"], 6),
             }
         )
     metrics = sorted(metrics, key=lambda x: x["language_pair"])

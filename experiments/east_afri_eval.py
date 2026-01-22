@@ -2,6 +2,7 @@ import sys
 
 
 sys.path.append("src")
+import os
 
 import numpy as np
 from pandas import DataFrame
@@ -21,23 +22,24 @@ from llamafactory.hparams.training_args import TrainingArguments
 from llamafactory.train.sft.trainer import CustomSeq2SeqTrainer
 
 
-DATA_ARGS = DataArguments(preprocessing_num_workers=1)
+DATA_ARGS = DataArguments(preprocessing_num_workers=32, template="qwen3", dataset="east_africa_sft", cutoff_len=1024)
 TRAINING_ARGS = TrainingArguments(
-    per_device_eval_batch_size=8,
-    report_to="none",
+    per_device_eval_batch_size=8, report_to="none", output_dir="outputs/east_afri_eval_qwen3"
 )
 FINETUNING_ARGS = FinetuningArguments()
-CHECKPOINT_PATH = "outputs/gemma-1b-sft/2025-11-24_01-37-25/checkpoint-127268"
+CHECKPOINT_PATH = "Qwen/Qwen3-0.6B"
 
 
 def main():
     model = AutoModelForCausalLM.from_pretrained(CHECKPOINT_PATH)
     tokenizer = AutoTokenizer.from_pretrained(CHECKPOINT_PATH)
     dataset, tokenizer = get_dataaset_and_fix_tokenizer_for_metrics(
-        tokenizer, DATA_ARGS, TRAINING_ARGS, select_range=range(100)
+        tokenizer, DATA_ARGS, TRAINING_ARGS, select_range=None
     )
 
     collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+
+    # dataset = dataset.select(range(100))
 
     trainer = CustomSeq2SeqTrainer(
         model=model,
@@ -74,7 +76,7 @@ def main():
         )
 
         df = DataFrame(results)
-        df.to_csv("outputs/east_afri_eval_results.csv", index=False)
+        df.to_csv(os.path.join(TRAINING_ARGS.output_dir, "results.csv"), index=False)
 
 
 if __name__ == "__main__":
